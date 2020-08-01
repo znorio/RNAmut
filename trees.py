@@ -120,7 +120,7 @@ def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
         else:
             moveType = 1
             
-    if(moveType == 1):     # prune and re-attach 
+    if (moveType == 1):     # prune and re-attach 
         nodeToMove = random.randrange(num_mut)   # pick a node to move with its subtree
         possibleParents = []
 
@@ -156,5 +156,4 @@ def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
         if(propTreeParentVec[switchNodes[0]] == switchNodes[0]):
             propTreeParentVec[switchNodes[0]] = switchNodes[1]
 
-            
     return propTreeParentVec
