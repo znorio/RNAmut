@@ -8,7 +8,7 @@ import math
 from numpy import savetxt
 import random
 from random import gauss
-
+from .metropolis-hastings import
 
 # Options
 moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # moves: change Params (0,1) / prune&re-attach / swap node labels / swap subtrees -> weights -> don't have to sum up to 1
