@@ -55,7 +55,7 @@ def prüfer_to_parent(code, codelen):
 # Creates a random parent vector -> This is used to start the tree optimization with a random tree
 def getRandParentVec(n):
     """
-    Args:
+    Arg:
         n - length of parent vector (int)
         
     Returns:
