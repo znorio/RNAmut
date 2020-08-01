@@ -5,11 +5,11 @@ from .scores import calculate_pmat
 from .trees import parentVector2ancMatrix
 
 # Determines the optimal attachment points of the cells to the mutation tree
-def getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
+def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
     """
     Args:
         parVec                  - Parent vector (list)
-        Params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
+        params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
         num_mut                 - Number of mutation sites (int)
         num_cells               - Number of cells (int)
         frequency_of_nucleotide - Expected allele frequency (float)
@@ -18,7 +18,7 @@ def getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleot
     Returns:
         Optimal attachment points (list)
     """    
-    pmat = calculate_pmat(Params[0], Params[1], Params[2], Params[3], frequency_of_nucleotide, sequencing_error_rate )
+    pmat = calculate_pmat(params[0], params[1], params[2], params[3], frequency_of_nucleotide, sequencing_error_rate )
     
     log_pmat_m = np.log(pmat)
     log_pmat_r = np.log(1 - pmat)
@@ -63,10 +63,10 @@ def getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleot
     
 # Calculates a one zero mutation matrix
 # All cells are optimally attached to the muatation tree
-def oneZeroMut(Params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
+def oneZeroMut(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
     """
     Args:
-        Params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
+        params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
         parVec                  - Parent vector of tree (list)
         num_mut                 - Number of mutation sites (int)
         num_cells               - Number of cells (int)
@@ -78,7 +78,7 @@ def oneZeroMut(Params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequ
     """    
     ancMatrix = parentVector2ancMatrix(parVec, num_mut)
     
-    attachmentPoints = getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
+    attachmentPoints = getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
 
     mat = np.zeros((num_mut, num_cells))
 
@@ -92,10 +92,10 @@ def oneZeroMut(Params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequ
   
 
 # Creates a graphviz file
-def graphviz(Params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
+def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
     """
     Args:
-        Params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
+        params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
         parVec                  - Parent vector of tree (list)
         num_mut                 - Number of mutation sites (int)
         num_cells               - Number of cells (int)
@@ -116,7 +116,7 @@ def graphviz(Params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequen
 
     gv += "node [color=lightgrey, style=filled, fontcolor=black];\n"
                             
-    attachmentPoints = getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
+    attachmentPoints = getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
     
     for y, a in enumerate(attachmentPoints):
         gv += "\"" + gene_names[a] + "\"" + " -> s"  + str(y + 1) + ";\n"
