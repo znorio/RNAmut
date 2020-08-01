@@ -126,7 +126,7 @@ if output_mut_csv == True:
     for o, opt in enumerate(optimal):
         if o >= optTreeOutputNum:
             break
-        mut = oneZeroMut(opt[1], opt[0], num_mut, num_cells)
+        mut = oneZeroMut(opt[1], opt[0], num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
         savetxt(outFile + "_mut_" + str(o) + ".csv", mut, delimiter = ',')
         
 
@@ -138,7 +138,7 @@ if output_gv == True:
     for o, opt in enumerate(optimal):
         if o >= optTreeOutputNum:
             break
-        gv = graphviz(opt[1], opt[0], num_mut, num_cells)
+        gv = graphviz(opt[1], opt[0], num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
         with open( outFile + "_" + str(o) + ".gv", "w") as text_file:
             text_file.write(gv)
 
