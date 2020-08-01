@@ -30,12 +30,14 @@ moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # Probability of different m
                                                     # 3.  swap node labels: Two nodes are randomly chosen and their labels exchanged
                                                     # 4.  swap subtrees: Swap subtrees only if nodes in different lineages else prune&re-attach
                                                     # 2,3 and 4 are weights -> they don't have to sum up to 1
-
+oodp = [100, 1, 0.2, 0.1]                           # overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
+            
 # For the two overdispersion, dropout and mutation 
 # parameters, a prior beta distribution is specified.
 priorAlphaBetaoodp = [2, 10, 2, 2, 1.5, 3, 2, 18]   # alpha overdispersion_wt, beta overdispersion_wt, alpha overdispersion_mut, beta overdispersion_mut, 
                                                     # alpha dropout, beta dropout, alpha prior_p_mutation, beta prior_p_mutation
-oodp = [100, 1, 0.2, 0.1]                           # overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
+frequency_of_nucleotide = 0.5                       # expected allele frequency
+sequencing_error_rate = 0.01                        # If small, it has little effect on the mutation probability
 
 # The covariance matrix is learned adaptively.
 # New parameters are drawn from a multivariate
@@ -112,7 +114,7 @@ samples, sampleParams, optimal, bestParams = runMCMCoodp(rep, loops, oodp, prior
 
 # Uses the best parameters to calculate the probability of mutation using the RNA read counts
 if output_ProbabilityMatrix == True:           
-    pmat = calculate_pmat(bestParams[0], bestParams[1], bestParams[2], bestParams[3])
+    pmat = calculate_pmat(bestParams[0], bestParams[1], bestParams[2], bestParams[3], frequency_of_nucleotide, sequencing_error_rate)
     savetxt(outFile + "_pmat.csv", pmat, delimiter = ",")
 
     
