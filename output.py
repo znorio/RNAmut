@@ -37,7 +37,8 @@ def getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleot
         for t in range(len(children[bf[w]])):
             z += 1
 
-            bf[z] = children[bf[w]][t]           # determine where the mutations are in the tree to later be able to add the log score from root to bottom of the tree
+            bf[z] = children[bf[w]][t]           # determine where the mutations are located in the tree to later be able to 
+                                                 # add the log score from root to bottom of the tree
     
     for i in range(m):
         
@@ -49,10 +50,12 @@ def getAttachmentPoints(parVec, Params, num_mut, num_cells, frequency_of_nucleot
         for k in range(1, num_mut + 1):
                        
             node = bf[k]
-
+            
+            # Step by step the mutation log score is added and because the mutation replaces a reference, 
+            # the reference log score is substracted.
             score[node] = score[parVec[node]]
-            score[node] -= log_pmat_r[node,i]     # step by step the mutation log score is added and because the mutation replaces a reference, the reference log score is substracted
-            score[node] += log_pmat_m[node,i]
+            score[node] -= log_pmat_r[node,i] 
+            score[node] += log_pmat_m[node,i] 
 
         attachmentPoints.append(score.index(max(score)))
     return attachmentPoints
