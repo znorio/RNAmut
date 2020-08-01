@@ -1,6 +1,7 @@
 # Takes RNA reference and alternative read counts as input
-# Can either be used to compute posterior distributions of overdispersion, dropout and mutation probabilities
-# or for inference of the cell lineage
+# Input format should be comparable to the example data files reference_reads.csv and alternative_reads.csv
+# Can either be used to compute posterior distributions of overdispersion terms as well as dropout and mutation probabilities
+# or for the inference of the cell lineage
 
 import numpy as np
 import pandas as pd
@@ -14,10 +15,18 @@ from .scores import calculate_pmat, log_scoretree2
 
 
 # Options
-moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # moves: change Params (0,1) / prune&re-attach / swap node labels / swap subtrees -> weights -> don't have to sum up to 1
-                                                    # swap subtrees only if nodes in different lineages else prune&re-attach
+moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # Probability of different moves: 
+                                                    # 1.  Range (0,1): Determines the probability that in one round of the Metropolis-Hastings algorithm
+                                                    #     the parameters are updated, One minus this probability is the probability that the trees are updated
+                                                    # 2.  prune&re-attach: Prune a subtree and re-attach it to the main tree
+                                                    # 3.  swap node labels: Two nodes are randomly chosen and their labels exchanged
+                                                    # 4.  swap subtrees: Swap subtrees only if nodes in different lineages else prune&re-attach
+                                                    # 2,3 and 4 are weights -> they don't have to sum up to 1
+
+# For the two overdispersion, dropout and mutation parameters, a prior beta distribution is specified
 priorAlphaBetaoodp = [2, 10, 2, 2, 1.5, 3, 2, 18]   # alpha overdispersion_wt, beta overdispersion_wt, alpha overdispersion_mut, beta overdispersion_mut, 
                                                     # alpha dropout, beta dropout, alpha prior_p_mutation, beta prior_p_mutation
+
 oodp = [100, 1, 0.2, 0.1]                           # overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
 covDiagonal = [1, 0.001, 0.0002, 0.00001]           # Initial covariance Matrix is all zeros expcept these values in the diagonal from upper left to lower right
 maxValues = [1000, 2, 1, 1]                         # The maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
