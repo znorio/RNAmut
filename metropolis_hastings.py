@@ -2,6 +2,7 @@ import numpy as np
 import math
 import random
 from random import gauss
+from .tree getRandParentVec, proposeNewTree
 
 
 def acceptance(x_logs, x_new_logs, gamma):
