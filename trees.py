@@ -1,3 +1,5 @@
+# Functions used for initializing and optimizing cell lineage trees
+
 import numpy as np
 import random
 
@@ -31,7 +33,7 @@ def prüfer_to_parent(code, codelen):
         baum.append(c)
         par_vec[c] = code.pop(0)
 
-    # the last two remaining nodes seperately
+    # the last two remaining nodes treated seperately
     last = []
 
     for l in range(root):
@@ -90,12 +92,21 @@ def parentVector2ancMatrix(parVec, n):
         
     return ancMatrix
 
-def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
-    
-    moveType = random.choices([1,2,3], weights = (moveProbsParams[1], moveProbsParams[2], moveProbsParams[3]), k = 1)[0]
 
-    currTreeAncMatrix = parentVector2ancMatrix(currTreeParentVec, 26)
+# Is used in the Metropolis-Hastings algorithm to propose new trees similar to current tree
+def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
+    """
+    A new cell lineage tree is created
     
+    Args:
+        moveProbsParams   - determines the weights of the three move types (prune&re-attach, swap node labels, swap subtrees) (list)
+        AncMatrix         - Ancestor matrix of current parent vector (numpy array)
+        currTreeParentVec - Parent vector of current tree (list)
+        
+    Returns:
+        Parent vector of proposal tree (list)
+    """
+    moveType = random.choices([1,2,3], weights = (moveProbsParams[1], moveProbsParams[2], moveProbsParams[3]), k = 1)[0]
     
     if (moveType == 3):  # swap two subtrees in different lineages
         
@@ -115,9 +126,9 @@ def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
 
         for i in range(num_mut):
             if AncMatrix[nodeToMove][i] == 0:
-                possibleParents.append(i)                             # possible attachment points
+                possibleParents.append(i)                        # possible attachment points
                 
-        newParent = random.choice(possibleParents + [num_mut])                  # randomly pick a new parent among available nodes, root (num_mut + 1) is also possible parent
+        newParent = random.choice(possibleParents + [num_mut])   # randomly pick a new parent among available nodes, root (num_mut + 1) is also possible parent
                                            
         propTreeParentVec =  currTreeParentVec
         propTreeParentVec[nodeToMove] = newParent
@@ -139,7 +150,7 @@ def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
         propTreeParentVec[switchNodes[1]] = currTreeParentVec[switchNodes[0]]   # switch the nodes
         propTreeParentVec[switchNodes[0]] = currTreeParentVec[switchNodes[1]]
         
-        if(propTreeParentVec[switchNodes[1]] == switchNodes[1]):     # if one is parent of the other
+        if(propTreeParentVec[switchNodes[1]] == switchNodes[1]):     # if one is the parent of the other
             propTreeParentVec[switchNodes[1]] = switchNodes[0]
         
         if(propTreeParentVec[switchNodes[0]] == switchNodes[0]):
