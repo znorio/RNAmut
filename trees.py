@@ -1,6 +1,6 @@
-# Functions used for initializing and optimizing cell lineage trees
-# The tree consists of the mutation sites. The cells are attached to the tree
-# A cell attached to the root has no mutation in any of the mutation sites
+# Functions used for initializing and optimizing cell lineage trees.
+# The tree consists of the mutation sites. The cells are attached to the tree.
+# A cell attached to the root has no mutation in any of the mutation sites.
 # A cell attached to another part of the tree contains the mutation it is attached to and all
 # mutations of the respective parents.
 
