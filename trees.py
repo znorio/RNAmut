@@ -1,8 +1,18 @@
 import numpy as np
 import random
 
+
 def prüfer_to_parent(code, codelen):
+    """
+    converts Prüfer code to parent vector
     
+    Args:
+        code    - Prüfer code (list)
+        codelen - length of Prüfer code (int)
+        
+    Returns:
+        - Parent vector (list)
+    """
     root = codelen + 2        # same as node count
     par_vec = [0] * (codelen + 1)
     baum = []
@@ -34,22 +44,39 @@ def prüfer_to_parent(code, codelen):
             last.append(l)
 
     par_vec[last[0]] = last[1]
-    return par_vec         
-                
+    return par_vec
 
+                
+# Starts tree optimization with a random tree
 def getRandParentVec(n):
+    """
+    Create random parent vector
     
+    Args:
+        n - length of parent vector (int)
+        
+    Returns:
+        Parent vector (list)
+    """
     randCode = []
-    codelen = n - 1                   
+    codelen = n - 1             
     for i in range(codelen):                         # length of Prüfer code
         randCode.append(random.randint(0, n))               # random Prüfer code with n+1 nodes
-    par_vec = prüfer_to_parent(randCode, codelen)
-    return par_vec
+        
+    return prüfer_to_parent(randCode, codelen)
 
 
 def parentVector2ancMatrix(parVec, n):
-    
-    #ancMatrix = [[0] * n for v in range(n)]
+    """
+    Determines ancestor matrix from parent vector
+        
+    Args:
+        parVec - parent vector (list)
+        n      - length of parent vector (int)
+        
+    Returns:
+        Ancestor matrix (numpy array)
+    """
     ancMatrix = np.zeros((n,n))
     for j in range(n):
         ancMatrix[j][j] = 1     # mutation counted as it's own ancestor
