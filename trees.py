@@ -4,10 +4,9 @@ import numpy as np
 import random
 
 
+# Converts Prüfer code to parent vector
 def prüfer_to_parent(code, codelen):
     """
-    converts Prüfer code to parent vector
-    
     Args:
         code    - Prüfer code (list)
         codelen - length of Prüfer code (int)
@@ -49,11 +48,9 @@ def prüfer_to_parent(code, codelen):
     return par_vec
 
                 
-# Starts tree optimization with a random tree
+# Creates a random parent vector -> This is used to start the tree optimization with a random tree
 def getRandParentVec(n):
     """
-    Create random parent vector
-    
     Args:
         n - length of parent vector (int)
         
@@ -68,10 +65,9 @@ def getRandParentVec(n):
     return prüfer_to_parent(randCode, codelen)
 
 
+# Determines ancestor matrix from parent vector
 def parentVector2ancMatrix(parVec, n):
     """
-    Determines ancestor matrix from parent vector
-        
     Args:
         parVec - parent vector (list)
         n      - length of parent vector (int)
@@ -93,11 +89,9 @@ def parentVector2ancMatrix(parVec, n):
     return ancMatrix
 
 
-# Is used in the Metropolis-Hastings algorithm to propose new trees similar to current tree
+# Is used in the Metropolis-Hastings algorithm to propose new cell lineage trees similar to current tree
 def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
     """
-    A new cell lineage tree is created
-    
     Args:
         moveProbsParams   - determines the weights of the three move types (prune&re-attach, swap node labels, swap subtrees) (list)
         AncMatrix         - Ancestor matrix of current parent vector (numpy array)
