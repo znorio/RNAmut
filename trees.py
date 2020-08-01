@@ -94,7 +94,7 @@ def parentVector2ancMatrix(parVec, n):
 
 
 # Is used in the Metropolis-Hastings algorithm to propose new cell lineage trees similar to current tree
-def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
+def proposeNewTree(moveProbsParams, ancMatrix, currTreeParentVec):
     """
     Args:
         moveProbsParams   - determines the weights of the three move types (prune&re-attach, swap node labels, swap subtrees) (list)
@@ -109,7 +109,7 @@ def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
     if (moveType == 3):  # swap two subtrees in different lineages
         
         swapNodes = np.random.choice(num_mut, 2, replace=False)
-        if (AncMatrix[swapNodes[1]][swapNodes[0]] == 0) and (AncMatrix[swapNodes[0]][swapNodes[1]] == 0):
+        if (ancMatrix[swapNodes[1]][swapNodes[0]] == 0) and (ancMatrix[swapNodes[0]][swapNodes[1]] == 0):
 
             propTreeParentVec =  currTreeParentVec
             propTreeParentVec[swapNodes[1]] =  currTreeParentVec[swapNodes[0]]
@@ -123,7 +123,7 @@ def proposeNewTree(moveProbsParams, AncMatrix, currTreeParentVec):
         possibleParents = []
 
         for i in range(num_mut):
-            if AncMatrix[nodeToMove][i] == 0:
+            if ancMatrix[nodeToMove][i] == 0:
                 possibleParents.append(i)                        # possible attachment points
                 
         newParent = random.choice(possibleParents + [num_mut])   # randomly pick a new parent among available nodes, root (num_mut + 1) is also possible parent
