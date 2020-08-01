@@ -1,13 +1,13 @@
+import math
+import numpy as np
+
 # alpha_wt + beta_wt = overdispersion_wt
 # alpha_mut + beta_mut = overdispersion_mut
 # sc.gammaln(c + 1) and - sc.gammaln(c - s + 1) and - sc.gammaln(s + 1) are the same for all terms so they cancel out and it is 
 # not necessary to calculate them
     
-def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation):
+def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation, frequency_of_nucleotide, sequencing_error_rate):
     
-    frequency_of_nucleotide = 0.5 # expected allele frequency
-    sequencing_error_rate = 0.01
-
     alpha_wt = overdispersion_wt * sequencing_error_rate
     beta_wt = overdispersion_wt * (1 - sequencing_error_rate)
 
@@ -45,11 +45,7 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
     pmat[pmat > 0.9999] = 0.9999
     pmat[pmat < 0.0001] = 0.0001
     return pmat
-  
-  
-#calculate log-score
-def pdf(a,b,x):
-    return math.e**(math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)) * x**(a-1) * (1-x)**(b-1)
+
 
 def log_pdf(a,b,x):
     return math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + (a - 1) * math.log(x) + (b - 1) * math.log(1 - x)
