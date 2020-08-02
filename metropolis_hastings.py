@@ -80,7 +80,6 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
     """
     optStatesAfterBurnIn = 0
     n = len(oodp)  # number of parameters
-    burnInPhase = 0.25
     burnIn = loops * burnInPhase
     parentVectorSize = num_mut
     eps = 0.00000000001
@@ -96,7 +95,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         currTreeParentVec = getRandParentVec(parentVectorSize)     # start MCMC with random tree
         currTreeAncMatrix =  parentVector2ancMatrix(currTreeParentVec, parentVectorSize)
         currParams = oodp
-        pmat = calculate_pmat(currParams[0], currParams[1], currParams[2], currParams[3])
+        pmat = calculate_pmat(currParams[0], currParams[1], currParams[2], currParams[3], frequency_of_nucleotide, sequencing_error_rate)
         currpmat = pmat
         currTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
         currParamsLogScore = log_scoreparams(currParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
@@ -151,7 +150,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                     continue 
                 
                 propParamsLogScore = log_scoreparams(propParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
-                pmat = calculate_pmat(propParams[0], propParams[1], propParams[2], propParams[3])
+                pmat = calculate_pmat(propParams[0], propParams[1], propParams[2], propParams[3], frequency_of_nucleotide, sequencing_error_rate)
                 propTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
                 propScore = propTreeLogScore + propParamsLogScore
 
@@ -217,7 +216,6 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                 bestScore = currScore
                 bestParams = currParams
 
-                    
     noStepsAfterBurnin = rep * (loops - burnIn)
 
     print( "best log score for tree: " , bestTreeLogScore)
