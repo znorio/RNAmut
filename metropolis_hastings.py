@@ -15,7 +15,7 @@ def acceptance(x_logs, x_new_logs):
         x_new_logs  - new log score (float)
         
     Returns:
-        Acceptance (bool)
+        accepted or not (bool)
     """
     if x_new_logs > x_logs:
         return True
@@ -28,11 +28,11 @@ def acceptance(x_logs, x_new_logs):
 def sample_multivariate_normal(x, cov):
     """
     Args:
-        x   - previous parameters (list)
-        cov - covariance matrix (numpy array)
+        x     - previous parameters (list)
+        cov   - covariance matrix (numpy array)
         
     Returns:
-        New parameters (list)
+        x_new - new parameters (list)
     """
     n = len(x)
     x_new = [0,0,0,0]
@@ -47,31 +47,35 @@ def sample_multivariate_normal(x, cov):
     
 # Runs the Markov chain Monte Carlo (MCMC)/ Metropolis Hastings algorithm for learning the tree and parameters.
 # It either samples from the posterior paramter distributions / optimizes the parameters, muatation tree and the attachment of cells
-def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, \
-                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization):
+def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
+                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization, \
+                frequency_of_nucleotide, sequencing_error_rate):
     """
     Args:
-        reps                 - number of repetitions of the MCMC (int)
-        loops                - number of loops within a MCMC (int)
-        oodp                 - initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
-        priorAlphaBetaoodp   - alphas and betas of prior parameter distributions (list)
-        moveProbsParams      - probabilities of different moves [parameters updated, prune&re-attach, swap node labels, swap subtrees] (list)
-        sampleStep           - stepsize between sampling of parameters and trees (int)
-        initialPeriod        - number of iterations before the initial covariance matrix is adapted (int)
-        covDiagonal          - initial values of the covariance matrix in the diagonal from upper left to lower right (list)
-        maxValues            - the maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
-        minValues            - the minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
-        burnInPhase          - burn-in loops / total number of loops (float)
-        decVar               - The covariance matrix is multiplied with this factor (float)
-        factor_owt           - Is multiplied with the overdisperison_wt log-score (float/int)
-        factorParamsLogScore - Is multiplied with the parameter log score to increase or decrease its influence compared to the tree log score (float/int)
-        marginalization      - false -> optimizes the tree, the placement of cells, true -> marginal distribution of the parameters (bool)
+        reps                    - number of repetitions of the MCMC (int)
+        loops                   - number of loops within a MCMC (int)
+        oodp                    - initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
+        priorAlphaBetaoodp      - alphas and betas of prior parameter distributions (list)
+        moveProbsParams         - probabilities of different moves [parameters updated, prune&re-attach, swap node labels, swap subtrees] (list)
+        sampleStep              - stepsize between sampling of parameters and trees (int)
+        initialPeriod           - number of iterations before the initial covariance matrix is adapted (int)
+        adaptAcceptanceRate     - if true starts with given decVar, but adapts it every 1000 loops, if the acceptance rate lies outside 1/4 to 1/2
+        covDiagonal             - initial values of the covariance matrix in the diagonal from upper left to lower right (list)
+        maxValues               - the maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
+        minValues               - the minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
+        burnInPhase             - burn-in loops / total number of loops (float)
+        decVar                  - the covariance matrix is multiplied with this factor (float)
+        factor_owt              - is multiplied with the overdisperison_wt log-score (float/int)
+        factorParamsLogScore    - is multiplied with the parameter log score to increase or decrease its influence compared to the tree log score (float/int)
+        marginalization         - false -> optimizes the tree, the placement of cells, true -> marginal distribution of the parameters (bool)
+        frequency_of_nucleotide - Expected allele frequency (float)
+        sequencing_error_rate   - Sequencing error rate (float)
         
     Returns:
-        sample               - all samples after burn-in of current tree log-score, current params and curent parent vector (list)
-        sampleParams         - all samples after burn-in of current parameters and current log-score (list)
-        optimalTreelist      - all optimal trees that are not equivalent and current parameters (list)
-        bestParams           - optimal parameters (list)
+        sample                  - all samples after burn-in of current tree log-score, current params and curent parent vector (list)
+        sampleParams            - all samples after burn-in of current parameters and current log-score (list)
+        optimalTreelist         - all optimal trees that are not equivalent and current parameters (list)
+        bestParams              - optimal parameters (list)
     """
     optStatesAfterBurnIn = 0
     n = len(oodp)  # number of parameters
@@ -86,10 +90,8 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
     bestScore = bestTreeLogScore = -1000000
     
     for r in range(reps):       # starts over, but keeps sampling, bestScore, bestTreeLogScore
-        
-        sum_parameters = np.array(oodp)
+
         av_params_t = oodp
-        
         currTreeParentVec = getRandParentVec(parentVectorSize)     # start MCMC with random tree
         currTreeAncMatrix =  parentVector2ancMatrix(currTreeParentVec, parentVectorSize)
         currParams = oodp
@@ -98,6 +100,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         currTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
         currParamsLogScore = log_scoreparams(currParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
         currScore = currTreeLogScore + currParamsLogScore
+        
         if currScore > bestScore:
             bestScore = currScore
             bestTreeLogScore = currTreeLogScore
@@ -109,7 +112,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         totalMovesTrees = lasttotalMoveParams = 0
         
         
-        t = 0
+        t = 1
 
         cov_mat = np.zeros((n,n))
         for z in range(n):
@@ -140,16 +143,15 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
 
                 propParams = sample_multivariate_normal(currParams, cov_mat)
 
-                if (propParams[0] < (minValues[0] + 0.0001)) or (propParams[0] > (maxValues[0] - 0.0001)) or (propParams[1] < (minValues[1] + 0.0001)) or (propParams[1] > (maxValues[1] - 0.0001)) or \
-                        (propParams[2] < (minValues[2] + 0.0001)) or (propParams[2] > (maxValues[2] - 0.0001)) or (propParams[3] < (minValues[3] + 0.0001)) or (propParams[3] > (maxValues[3] - 0.0001)):
-                    continue #if the proposed parameters are out of range, they are not considered
+                if (propParams[0] < (minValues[0] + 0.00001)) or (propParams[0] > (maxValues[0] - 0.00001)) or (propParams[1] < (minValues[1] + 0.00001)) \
+                   or (propParams[1] > (maxValues[1] - 0.00001)) or (propParams[2] < (minValues[2] + 0.00001)) or (propParams[2] > (maxValues[2] - 0.00001)) \
+                   or (propParams[3] < (minValues[3] + 0.00001)) or (propParams[3] > (maxValues[3] - 0.00001)):
+                    continue #if the proposed parameters are out of range (or close to), they are not considered
                 
                 propParamsLogScore = log_scoreparams(propParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
                 
                 pmat = calculate_pmat(propParams[0], propParams[1], propParams[2], propParams[3])
-
                 propTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
-                
                 propScore = propTreeLogScore + propParamsLogScore
 
                 if acceptance(currScore, propScore, gamma):  # the proposed move is accepted
@@ -162,28 +164,20 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                     
                 if (l > 0.9 * initialPeriod):
                     t += 1
-                    sum_parameters += currParams
-                    av_params_t = sum_parameters / t
+                    av_params_t += (currParams - av_params_t) / t
                     
                 if (l > initialPeriod):
-
                     cov_mat = (t - 1)/t * (cov_mat  +  1/t * np.dot(np.transpose([currParams - av_params_t]), [currParams - av_params_t]) * decVar) + eps * np.identity(4)
 
         
-            else:                 # if the move changes the tree not the parameters
-
+            else:                 # if the move changes the tree not the parameter
                 totalMovesTrees += 1
-                
-                propTreeParentVec = proposeNewTree(moveProbsParams, currTreeAncMatrix[:], currTreeParentVec[:]) 
-                
+                propTreeParentVec = proposeNewTree(moveProbsParams, currTreeAncMatrix[:], currTreeParentVec[:])
                 propTreeLogScore = log_scoretree(currpmat, propTreeParentVec, marginalization)
                 
                 if acceptance(currTreeLogScore, propTreeLogScore, gamma):                   # the proposed tree is accepted
-                    
                     moveAcceptedTrees += 1
-          
                     currTreeAncMatrix = parentVector2ancMatrix(propTreeParentVec, parentVectorSize)
-        
                     currTreeParentVec = propTreeParentVec                                
                     currTreeLogScore  = propTreeLogScore                     
                     currScore = currTreeLogScore + currParamsLogScore
@@ -192,14 +186,14 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                 optimalTreelist = []
                 optimalTreelist.append([currTreeParentVec, currParams])
 
-            if (currScore >= bestScore - eps) and (currScore <= bestScore + eps): # don't know if truly necessary, but == usually gave optStatesAfterBurnIn = 1
-                
+            if (currScore >= bestScore - eps) and (currScore <= bestScore + eps): # might not be necessary to use eps
                 for o in optimalTreelist:
                     newtree = False
                     for u in range(num_mut):
                         if o[0][u] != currTreeParentVec[u]:
                             newtree = True
                             break
+                            
                     if newtree == False:
                         break
                 
@@ -231,6 +225,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
     print( "percentage of optimal steps after burn-in: " , optStatesAfterBurnIn / noStepsAfterBurnin)
     print( "percentage of new Parameters accepted:", (moveAcceptedParams / totalMovesParams) * 100, "%")
     print( "percentage of Tree moves accepted:", (moveAcceptedTrees / totalMovesTrees) * 100, "%")
+    
     if(moveProbsParams[0] != 0):
         print( "best value for overdispersion_wt: " , bestParams[0])
         print( "best value for overdispersion_mut: " , bestParams[1])
