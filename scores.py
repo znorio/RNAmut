@@ -12,11 +12,11 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
         overdispersion_mut      - overdispersion mutated case (float)
         dropout                 - dropout rate (float)
         prior_p_mutation        - prior probability of a mutation occurring (float)
-        frequency_of_nucleotide - Expected allele frequency (float)
-        sequencing_error_rate   - Sequencing error rate (float)
+        frequency_of_nucleotide - expected allele frequency (float)
+        sequencing_error_rate   - sequencing error rate (float)
         
     Returns:
-        Mutation probabilities (numpy array)
+        pmat                    - mutation probabilities (numpy array)
     """
     alpha_wt = overdispersion_wt * sequencing_error_rate
     beta_wt = overdispersion_wt * (1 - sequencing_error_rate)
@@ -75,10 +75,10 @@ def log_pdf(a,b,x):
     return math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + (a - 1) * math.log(x) + (b - 1) * math.log(1 - x)
 
 
-# logarithmic tree score
+# Logarithmic tree score
 # Uses the logarithmic scoring rule to determine the difference between the calculated probabilities of mutation 
 # and the one zero mutation probabilities derived from the mutation tree
-# marginalization of the attachment points is possible (to get posterior distributions of the learnable parameters)
+# Marginalization of the attachment points is possible (to get posterior distributions of the learnable parameters)
 def log_scoretree(pmat, parVec, marginalization):
      """
     Args:
@@ -87,7 +87,7 @@ def log_scoretree(pmat, parVec, marginalization):
         marginalization - if true the attachment points are marginalized (bool)
         
     Returns:
-        Logarithmic tree score (float)
+        log_score       - logarithmic tree score (float)
     """
     log_pmat_m = np.log(pmat)
     log_pmat_r = np.log(1 - pmat)
@@ -132,7 +132,7 @@ def log_scoretree(pmat, parVec, marginalization):
     return log_score
 
 
-# logarithmic parameter score
+# Logarithmic parameter score
 # The factorParamsLogScore determines how strongly the prior parameter distributions affect the combined tree and parameters log score
 # Because a small overdispersion_wt parameter might lead to an empty tree solution, meaning none of the cells are predicted to have a mutation, 
 # it is possible to strengthen the prior for this parameter with the factor_owt.
