@@ -49,7 +49,6 @@ minValues = [0,0,0,0]                               # The minimal values for the
 outFile = "tree"                                    # The name of the output files
 rep = 1                                             # number of repetitions of the MCMC
 loops = 100000                                      # number of loops within a MCMC
-gamma = 1                                           # if = 1 -> no influence
 initialPeriod = 10000                               # number of iterations before the initial covariance matrix is adapted                               
 sampleStep = 1                                      # stepsize between sampling of parameters and trees/ 1 -> sampled every round, 2 -> sampled every second round,...
 burnInPhase = 0.25                                  # burnIn / total number of loops
@@ -106,7 +105,7 @@ if columns_ref != columns_alt:
     
 
 # run Markov chain Monte Carlo / Metropolis Hastings algorithm
-samples, sampleParams, optimal, bestParams = runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sampleStep, initialPeriod, \
+samples, sampleParams, optimal, bestParams = runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, \
                                                          covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore)
 
 
