@@ -30,7 +30,7 @@ moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # Probability of different m
                                                     # 3.  swap node labels: Two nodes are randomly chosen and their labels exchanged
                                                     # 4.  swap subtrees: Swap subtrees only if nodes in different lineages else prune&re-attach
                                                     # 2,3 and 4 are weights -> they don't have to sum up to 1
-oodp = [100, 1, 0.2, 0.1]                           # overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
+oodp = [100, 1, 0.2, 0.1]                           # Initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
             
 # For the two overdispersion, dropout and mutation 
 # parameters, a prior beta distribution is specified.
@@ -44,7 +44,7 @@ sequencing_error_rate = 0.01                        # If small, it has little ef
 # normal distribution.
 covDiagonal = [1, 0.001, 0.0002, 0.00001]           # Initial covariance Matrix is all zeros expcept these values in the diagonal from upper left to lower right
 maxValues = [1000, 2, 1, 1]                         # The maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
-                                                    # Shouldn't be smaller than 1
+                                                    # Shouldn't be smaller than the initial values for the parameters
 minValues = [0,0,0,0]                               # The minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
 outFile = "tree"                                    # The name of the output files
 rep = 1                                             # number of repetitions of the MCMC
@@ -107,7 +107,7 @@ if columns_ref != columns_alt:
 
 # run Markov chain Monte Carlo / Metropolis Hastings algorithm
 samples, sampleParams, optimal, bestParams = runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sampleStep, initialPeriod, \
-                                                         covDiagonal, maxValues, minValues, burnInPhase, decVar)
+                                                         covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore)
 
 
 # create all desired output files
