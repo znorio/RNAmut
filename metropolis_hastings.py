@@ -3,6 +3,7 @@ import math
 import random
 from random import gauss
 from .trees import getRandParentVec, proposeNewTree, parentVector2ancMatrix
+from .scores import calculate_pmat, log_scoretree
 
 
 def acceptance(x_logs, x_new_logs, gamma):
@@ -26,7 +27,8 @@ def sample_multivariate_normal(x, cov):
     return x_new
   
 
-def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sampleStep, initialPeriod, covDiagonal, maxValues, minValues, burnInPhase, decVar):
+def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sampleStep, initialPeriod, \
+                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore):
     
     optStatesAfterBurnIn = 0
     n = len(oodp)  # number of parameters
@@ -50,8 +52,8 @@ def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sa
         currParams = oodp
         pmat = calculate_pmat(currParams[0], currParams[1], currParams[2], currParams[3])
         currpmat = pmat
-        currTreeLogScore = log_scoretree2(pmat, currTreeParentVec)
-        currParamsLogScore = log_scoreparams(currParams, maxValues, priorAlphaBetaoodp)
+        currTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
+        currParamsLogScore = log_scoreparams(currParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
         currScore = currTreeLogScore + currParamsLogScore
         if currScore > bestScore:
             bestScore = currScore
@@ -99,11 +101,11 @@ def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sa
                         (propParams[2] < (minValues[2] + 0.0001)) or (propParams[2] > (maxValues[2] - 0.0001)) or (propParams[3] < (minValues[3] + 0.0001)) or (propParams[3] > (maxValues[3] - 0.0001)):
                     continue #if the proposed parameters are out of range, they are not considered
                 
-                propParamsLogScore = log_scoreparams(propParams, maxValues, priorAlphaBetaoodp)
+                propParamsLogScore = log_scoreparams(propParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
                 
                 pmat = calculate_pmat(propParams[0], propParams[1], propParams[2], propParams[3])
 
-                propTreeLogScore = log_scoretree2(pmat, currTreeParentVec)
+                propTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
                 
                 propScore = propTreeLogScore + propParamsLogScore
 
@@ -131,7 +133,7 @@ def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sa
                 
                 propTreeParentVec = proposeNewTree(moveProbsParams, currTreeAncMatrix[:], currTreeParentVec[:]) 
                 
-                propTreeLogScore = log_scoretree2(currpmat, propTreeParentVec)
+                propTreeLogScore = log_scoretree(currpmat, propTreeParentVec, marginalization)
                 
                 if acceptance(currTreeLogScore, propTreeLogScore, gamma):                   # the proposed tree is accepted
                     
