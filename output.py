@@ -8,15 +8,15 @@ from .trees import parentVector2ancMatrix
 def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
     """
     Args:
-        parVec                  - Parent vector (list)
+        parVec                  - parent vector (list)
         params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
-        num_mut                 - Number of mutation sites (int)
-        num_cells               - Number of cells (int)
-        frequency_of_nucleotide - Expected allele frequency (float)
-        sequencing_error_rate   - Sequencing error rate (float)
+        num_mut                 - number of mutation sites (int)
+        num_cells               - number of cells (int)
+        frequency_of_nucleotide - expected allele frequency (float)
+        sequencing_error_rate   - sequencing error rate (float)
         
     Returns:
-        Optimal attachment points (list)
+        attachmentPoints        - optimal attachment points (list)
     """    
     pmat = calculate_pmat(params[0], params[1], params[2], params[3], frequency_of_nucleotide, sequencing_error_rate )
     
@@ -67,14 +67,14 @@ def oneZeroMut(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequ
     """
     Args:
         params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
-        parVec                  - Parent vector of tree (list)
-        num_mut                 - Number of mutation sites (int)
-        num_cells               - Number of cells (int)
-        frequency_of_nucleotide - Expected allele frequency (float)
-        sequencing_error_rate   - Sequencing error rate (float)
+        parVec                  - parent vector of tree (list)
+        num_mut                 - number of mutation sites (int)
+        num_cells               - number of cells (int)
+        frequency_of_nucleotide - expected allele frequency (float)
+        sequencing_error_rate   - sequencing error rate (float)
         
     Returns:
-        One zero matrix (numpy array)
+        mat                     - one zero matrix (numpy array)
     """    
     ancMatrix = parentVector2ancMatrix(parVec, num_mut)
     
@@ -96,14 +96,14 @@ def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequen
     """
     Args:
         params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
-        parVec                  - Parent vector of tree (list)
-        num_mut                 - Number of mutation sites (int)
-        num_cells               - Number of cells (int)
-        frequency_of_nucleotide - Expected allele frequency (float)
-        sequencing_error_rate   - Sequencing error rate (float)
+        parVec                  - parent vector of tree (list)
+        num_mut                 - number of mutation sites (int)
+        num_cells               - number of cells (int)
+        frequency_of_nucleotide - expected allele frequency (float)
+        sequencing_error_rate   - sequencing error rate (float)
         
     Returns:
-        Graphviz file (string)
+        gv                      - graphviz file (string)
     """    
     gene_names.append("Root")
     
