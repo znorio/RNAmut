@@ -12,11 +12,11 @@ import random
 def prüfer_to_parent(code, codelen):
     """
     Args:
-        code    - Prüfer code (list)
+        code    - prüfer code (list)
         codelen - length of Prüfer code (int)
         
     Returns:
-        Parent vector (list)
+        par_vec - parent vector (list)
     """
     root = codelen + 2        # same as node count
     par_vec = [0] * (codelen + 1)
@@ -73,11 +73,11 @@ def getRandParentVec(n):
 def parentVector2ancMatrix(parVec, n):
     """
     Args:
-        parVec - parent vector (list)
-        n      - length of parent vector (int)
+        parVec    - parent vector (list)
+        n         - length of parent vector (int)
         
     Returns:
-        Ancestor matrix (numpy array)
+        ancMatrix - ancestor matrix (numpy array)
     """
     ancMatrix = np.zeros((n,n))
     for j in range(n):
@@ -98,11 +98,11 @@ def proposeNewTree(moveProbsParams, ancMatrix, currTreeParentVec):
     """
     Args:
         moveProbsParams   - determines the weights of the three move types (prune&re-attach, swap node labels, swap subtrees) (list)
-        AncMatrix         - Ancestor matrix of current parent vector (numpy array)
-        currTreeParentVec - Parent vector of current tree (list)
+        ancMatrix         - ancestor matrix of current parent vector (numpy array)
+        currTreeParentVec - parent vector of current tree (list)
         
     Returns:
-        Parent vector of proposal tree (list)
+        propTreeParentVec - parent vector of proposal tree (list)
     """
     moveType = random.choices([1,2,3], weights = (moveProbsParams[1], moveProbsParams[2], moveProbsParams[3]), k = 1)[0]
     
