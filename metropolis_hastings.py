@@ -45,16 +45,33 @@ def sample_multivariate_normal(x, cov):
     return x_new
   
     
-#
-def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, \
-                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore):
+# Runs the Markov chain Monte Carlo (MCMC)/ Metropolis Hastings algorithm for learning the tree and parameters.
+# It either samples from the posterior paramter distributions / optimizes the parameters, muatation tree and the attachment of cells
+def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, \
+                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization):
     """
     Args:
-        x   - previous parameters (list)
-        cov - covariance matrix (numpy array)
+        reps                 - number of repetitions of the MCMC (int)
+        loops                - number of loops within a MCMC (int)
+        oodp                 - initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
+        priorAlphaBetaoodp   - alphas and betas of prior parameter distributions (list)
+        moveProbsParams      - probabilities of different moves [parameters updated, prune&re-attach, swap node labels, swap subtrees] (list)
+        sampleStep           - stepsize between sampling of parameters and trees (int)
+        initialPeriod        - number of iterations before the initial covariance matrix is adapted (int)
+        covDiagonal          - initial values of the covariance matrix in the diagonal from upper left to lower right (list)
+        maxValues            - the maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
+        minValues            - the minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation (list)
+        burnInPhase          - burn-in loops / total number of loops (float)
+        decVar               - The covariance matrix is multiplied with this factor (float)
+        factor_owt           - Is multiplied with the overdisperison_wt log-score (float/int)
+        factorParamsLogScore - Is multiplied with the parameter log score to increase or decrease its influence compared to the tree log score (float/int)
+        marginalization      - false -> optimizes the tree, the placement of cells, true -> marginal distribution of the parameters (bool)
         
     Returns:
-        New parameters (list)
+        sample               - all samples after burn-in of current tree log-score, current params and curent parent vector (list)
+        sampleParams         - all samples after burn-in of current parameters and current log-score (list)
+        optimalTreelist      - all optimal trees that are not equivalent and current parameters (list)
+        bestParams           - optimal parameters (list)
     """
     optStatesAfterBurnIn = 0
     n = len(oodp)  # number of parameters
@@ -68,7 +85,7 @@ def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSte
     newtree = True
     bestScore = bestTreeLogScore = -1000000
     
-    for r in range(rep):       # starts over, but keeps sampling, bestScore, bestTreeLogScore
+    for r in range(reps):       # starts over, but keeps sampling, bestScore, bestTreeLogScore
         
         sum_parameters = np.array(oodp)
         av_params_t = oodp
