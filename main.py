@@ -82,7 +82,7 @@ pd_alt = pd.read_csv(path + alt_file, sep = ",")
 gene_names = list(pd_ref.iloc[:,0])
 cell_names = list(pd_ref.columns[1:])
 
-# replace NANs with 0
+# Replace NANs with 0
 ref = np.array(pd_ref.fillna(0)).tolist()
 alt = np.array(pd_alt.fillna(0)).tolist()
 
@@ -105,13 +105,13 @@ if columns_ref != columns_alt:
     print("The number of cells s is not the same in files", ref_file, "and", alt_file)
     
 
-# run Markov chain Monte Carlo / Metropolis Hastings algorithm
+# Run Markov chain Monte Carlo / Metropolis Hastings algorithm
 samples, sampleParams, optimal, bestParams = runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
                                                          covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization, \
                                                          frequency_of_nucleotide, sequencing_error_rate)
 
 
-# create all desired output files
+# Create all desired output files
 
 # Uses the best parameters to calculate the probability of mutation using the RNA read counts
 if output_ProbabilityMatrix == True:           
@@ -119,7 +119,7 @@ if output_ProbabilityMatrix == True:
     savetxt(outFile + "_pmat.csv", pmat, delimiter = ",")
 
     
-# if true outputs 1,0 mutation matrix
+# If true outputs 1,0 mutation matrix
 if output_mut_csv == True:                               
     if optTreeOutputNum == -1:
         optTreeOutputNum = len(optimal)
@@ -131,7 +131,7 @@ if output_mut_csv == True:
         savetxt(outFile + "_mut_" + str(o) + ".csv", mut, delimiter = ',')
         
 
-# if true outputs graphviz file of optimal trees
+# If true outputs graphviz file of optimal trees
 if output_gv == True:
     if optTreeOutputNum == -1:
         optTreeOutputNum = len(optimal)
@@ -144,7 +144,7 @@ if output_gv == True:
             text_file.write(gv)
 
             
-# outputs all samples as np.array
+# Outputs all samples as np.array
 if output_samples == True:
     samples = np.array(samples)
     np.save(outFile, samples)
