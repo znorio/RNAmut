@@ -16,7 +16,7 @@ def prüfer_to_parent(code, codelen):
         codelen - length of Prüfer code (int)
         
     Returns:
-        - Parent vector (list)
+        Parent vector (list)
     """
     root = codelen + 2        # same as node count
     par_vec = [0] * (codelen + 1)
