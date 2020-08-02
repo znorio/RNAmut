@@ -1,24 +1,23 @@
-# Takes RNA reference and alternative read counts as input
-# Input format should be comparable to the example data files reference_reads.csv and alternative_reads.csv
+# Takes RNA reference and alternative nucleotide read counts as input
+# The input format should be equivalent to the example data files reference_reads.csv and alternative_reads.csv
 
-# The algorithm (more details -> scores.py/calculate_pmat) transfering these read counts to probabilities of mutations depends on several parameters.
-# Two overdispersion terms (overdispersion_mut for the mutated and overdispersion_wt for the non-mutated case) describing the shape of the distributions, 
-# an allelic dropout term (dropout) and the prior probability of mutation (prior_p_mutation) can be optimized with the Metropolis-Hastings algorithm.
-# Additionally the same algorithm tries to derive the phylogenetic relation inbetween single cells to find the tree and parameters, which best 
+# An algorithm (scores.py/calculate_pmat) transfers the read counts to probabilities of mutation.
+# To model the nucleotide read counts in relation to the total coverage, the algorithm uses a beta-binomial distribution.
+# The algorithms parameters include two overdispersion terms (overdispersion_mut for the mutated and overdispersion_wt for the non-mutated case)
+# describing the shape of the beta distributions (overdispersion = alpha + beta). Furthermore the parameters include an allelic dropout term (dropout)
+# and the prior probability of mutation (prior_p_mutation). RNAmut can be used to optimize these parameters using a Metropolis-Hastings algorithm.
+# Additionally RNAmut tries to derive the phylogenetic relation inbetween single cells to find the cell lineage trees and parameters, which best 
 # explain the observed read counts. This approach is based on SCIPHI "https://www.nature.com/articles/s41467-018-07627-7".
 
-# It can either be used to compute posterior distributions of the overdispersion terms as well as dropout and mutation probabilities
+# RNAmut can either be used to compute posterior distributions of the two overdispersion, dropout and mutation probability distributions,
 # or for the inference of the cell lineage
 
 import numpy as np
 import pandas as pd
-import math
 from numpy import savetxt
-import random
-from random import gauss
 from .metropolis_hastings import runMCMCoodp
-from .output import getAttachmentPoints, oneZeroMut, graphviz
-from .scores import calculate_pmat, log_scoretree2
+from .output import oneZeroMut, graphviz
+from .scores import calculate_pmat
 
 
 # Options
