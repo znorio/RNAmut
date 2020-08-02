@@ -23,7 +23,7 @@ from .scores import calculate_pmat, log_scoretree2
 
 # Options
 
-moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # Probability of different moves: 
+moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # Probabilities of different moves: 
                                                     # 1.  Range (0,1): Determines the probability that in one round of the Metropolis-Hastings algorithm
                                                     #     the parameters are updated, One minus this probability is the probability that the trees are updated
                                                     # 2.  prune&re-attach: Prune a subtree and re-attach it to the main tree
@@ -44,17 +44,18 @@ sequencing_error_rate = 0.01                        # If small, it has little ef
 # normal distribution.
 covDiagonal = [1, 0.001, 0.0002, 0.00001]           # Initial covariance Matrix is all zeros expcept these values in the diagonal from upper left to lower right
 maxValues = [1000, 2, 1, 1]                         # The maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
-                                                    # Shouldn't be smaller than the initial values for the parameters
+                                                    # Values larger than (maximum_value - 0.00001) are not considered
 minValues = [0,0,0,0]                               # The minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
+                                                    # Values smaller than (minimum_value + 0.00001) are not considered
 outFile = "tree"                                    # The name of the output files
-rep = 1                                             # number of repetitions of the MCMC
+reps = 1                                            # number of repetitions of the MCMC
 loops = 100000                                      # number of loops within a MCMC
 initialPeriod = 10000                               # number of iterations before the initial covariance matrix is adapted                               
 sampleStep = 1                                      # stepsize between sampling of parameters and trees/ 1 -> sampled every round, 2 -> sampled every second round,...
-burnInPhase = 0.25                                  # burnIn / total number of loops
+burnInPhase = 0.25                                  # burn-in loops / total number of loops
 decVar = 0.1                                        # The covariance matrix is multiplied with this factor, to increase or decrease it 0.1 -> 10 times smaller
                                                     # increases or decreases the acceptance rate
-adaptAcceptanceRate = True                          # if true starts with given decVar, but adapts it every 1000 steps, if the acceptance rate lies outside 1/4 to 1/2
+adaptAcceptanceRate = True                          # if true starts with given decVar, but adapts it every 1000 loops, if the acceptance rate lies outside 1/4 to 1/2
 factorParamsLogScore = 10                           # Is multiplied with the parameter log score to increase or decrease its influence compared to the tree log score
                                                     # -> Helps to prevent empty tree solution (all cells attached to the root).
 factor_owt = 2                                      # Is additionally multiplied with the overdisperison_wt log-score, because this is the main parameter 
@@ -105,8 +106,8 @@ if columns_ref != columns_alt:
     
 
 # run Markov chain Monte Carlo / Metropolis Hastings algorithm
-samples, sampleParams, optimal, bestParams = runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, \
-                                                         covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore)
+samples, sampleParams, optimal, bestParams = runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
+                                                         covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization)
 
 
 # create all desired output files
