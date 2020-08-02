@@ -3,19 +3,37 @@ import math
 import random
 from random import gauss
 from .trees import getRandParentVec, proposeNewTree, parentVector2ancMatrix
-from .scores import calculate_pmat, log_scoretree
+from .scores import calculate_pmat, log_scoretree, log_scoreparams
 
 
-def acceptance(x_logs, x_new_logs, gamma):
+# if the new score is better, the move is accepted
+# if it is worse, the probability of acceptance depends on how much worse it is
+def acceptance(x_logs, x_new_logs):
+    """
+    Args:
+        x_logs      - previous log score (float)
+        x_new_logs  - new log score (float)
+        
+    Returns:
+        Acceptance (bool)
+    """
     if x_new_logs > x_logs:
         return True
     else:
         accept = np.random.uniform(0,1)
-        return (accept < (math.e**((x_new_logs - x_logs) * gamma)))    # as long as gamma = 1 it has no influence
+        return (accept < (math.e**(x_new_logs - x_logs)))
       
-    
+
+# Used to draw samples from a multivariate normal distribution
 def sample_multivariate_normal(x, cov):
-    
+    """
+    Args:
+        x   - previous parameters (list)
+        cov - covariance matrix (numpy array)
+        
+    Returns:
+        New parameters (list)
+    """
     n = len(x)
     x_new = [0,0,0,0]
     chol = np.linalg.cholesky(cov)
@@ -26,10 +44,18 @@ def sample_multivariate_normal(x, cov):
         x_new[i] += x[i]
     return x_new
   
-
-def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, gamma, moveProbsParams, sampleStep, initialPeriod, \
-                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore):
     
+#
+def runMCMCoodp(rep, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, \
+                covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore):
+    """
+    Args:
+        x   - previous parameters (list)
+        cov - covariance matrix (numpy array)
+        
+    Returns:
+        New parameters (list)
+    """
     optStatesAfterBurnIn = 0
     n = len(oodp)  # number of parameters
     burnInPhase = 0.25
