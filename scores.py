@@ -1,13 +1,23 @@
+# Functions to convert read counts to mutation probabilities and to calculate the paramter and tree log-scores
+
 import math
 import numpy as np
 
-# alpha_wt + beta_wt = overdispersion_wt
-# alpha_mut + beta_mut = overdispersion_mut
-# sc.gammaln(c + 1) and - sc.gammaln(c - s + 1) and - sc.gammaln(s + 1) are the same for all terms so they cancel out and it is 
-# not necessary to calculate them
-    
+
+# Convert read counts to mutation probabilities
 def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation, frequency_of_nucleotide, sequencing_error_rate):
-    
+    """
+    Args:
+        overdispersion_wt       - overdispersion wildtype (non-mutated case) (float)
+        overdispersion_mut      - overdispersion mutated case (float)
+        dropout                 - dropout rate (float)
+        prior_p_mutation        - prior probability of a mutation occurring (float)
+        frequency_of_nucleotide - Expected allele frequency (float)
+        sequencing_error_rate   - Sequencing error rate (float)
+        
+    Returns:
+        Mutation probabilities (numpy array)
+    """
     alpha_wt = overdispersion_wt * sequencing_error_rate
     beta_wt = overdispersion_wt * (1 - sequencing_error_rate)
 
@@ -16,9 +26,13 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
 
     pmat = np.zeros((rows_ref,columns_ref - 1))
     
+    # alpha_wt + beta_wt = overdispersion_wt
+    # alpha_mut + beta_mut = overdispersion_mut
     gamma_const_nor = math.lgamma(overdispersion_wt) - math.lgamma(alpha_wt) - math.lgamma(beta_wt)
     gamma_const_mut = math.lgamma(overdispersion_mut) - math.lgamma(alpha_mut) - math.lgamma(beta_mut)
     
+    # sc.gammaln(c + 1) and - sc.gammaln(c - s + 1) and - sc.gammaln(s + 1) are the same for all terms. 
+    # -> They cancel out and it is not necessary to calculate them.
     for i in range(rows_ref):
         for j in range(1,columns_ref):    
 
