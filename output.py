@@ -29,6 +29,8 @@ def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleot
     for q in range(num_mut):
         children[parVec[q]].append(q) 
 
+    # determine where the mutations are located in the tree to later be able to 
+    # add the log score from root to bottom of the tree
     bf = [0] * (num_mut + 1)
     bf[0] = num_mut
     z = 0
@@ -37,9 +39,8 @@ def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleot
         for t in range(len(children[bf[w]])):
             z += 1
 
-            bf[z] = children[bf[w]][t]           # determine where the mutations are located in the tree to later be able to 
-                                                 # add the log score from root to bottom of the tree
-    
+            bf[z] = children[bf[w]][t]           
+                                                 
     for i in range(num_cells):
         
         score = [0] * (num_mut + 1)
@@ -101,6 +102,7 @@ def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequen
         num_cells               - number of cells (int)
         frequency_of_nucleotide - expected allele frequency (float)
         sequencing_error_rate   - sequencing error rate (float)
+        gene_names              - The names of the mutation sites (list)
         
     Returns:
         gv                      - graphviz file (string)
