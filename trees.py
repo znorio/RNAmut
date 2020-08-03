@@ -1,7 +1,7 @@
 # Functions used for initializing and optimizing cell lineage trees.
-# The tree consists of the mutation sites. The cells are attached to the tree.
+# The tree consists of the possible mutation sites. The cells are attached to the tree.
 # A cell attached to the root has no mutation in any of the mutation sites.
-# A cell attached to another part of the tree contains the mutation it is attached to and all
+# A cell attached to another part of the tree has the mutation it is attached to and all
 # mutations of the respective parents.
 
 import numpy as np
@@ -62,7 +62,8 @@ def getRandParentVec(n):
         Parent vector (list)
     """
     randCode = []
-    codelen = n - 1             
+    codelen = n - 1
+    
     for i in range(codelen):                         # length of Prüfer code
         randCode.append(random.randint(0, n))               # random Prüfer code with n+1 nodes
         
@@ -93,13 +94,14 @@ def parentVector2ancMatrix(parVec, n):
     return ancMatrix
 
 
-# Is used in the Metropolis-Hastings algorithm to propose new cell lineage trees similar to current tree
-def proposeNewTree(moveProbsParams, ancMatrix, currTreeParentVec):
+# Is used in the Metropolis-Hastings algorithm to propose new cell lineage trees similar to the current tree
+def proposeNewTree(moveProbsParams, ancMatrix, currTreeParentVec, num_mut):
     """
     Args:
         moveProbsParams   - determines the weights of the three move types (prune&re-attach, swap node labels, swap subtrees) (list)
         ancMatrix         - ancestor matrix of current parent vector (numpy array)
         currTreeParentVec - parent vector of current tree (list)
+        num_mut           - number of mutation sites
         
     Returns:
         propTreeParentVec - parent vector of proposal tree (list)
