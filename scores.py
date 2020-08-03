@@ -83,7 +83,7 @@ def log_pdf(a, b, x):
 # and the one zero mutation probabilities derived from the mutation tree
 # Marginalization of the attachment points is possible (to get posterior distributions of the learnable parameters)
 def log_scoretree(pmat, parVec, marginalization, num_mut, num_cells):
-     """
+    """
     Args:
         pmat            - calculated probabilities of mutation (numpy array)
         parVec          - parent vector of tree (list)
