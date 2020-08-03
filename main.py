@@ -6,15 +6,16 @@ An algorithm (scores.py/calculate_pmat) transfers the read counts to probabiliti
 in relation to the total coverage, the algorithm uses a beta-binomial distribution.
 The algorithms parameters include two overdispersion terms (overdispersion_mut for the mutated and overdispersion_wt for the non-mutated case)
 describing the shape of the beta distributions (overdispersion = alpha + beta). Furthermore the parameters include an allelic dropout term (dropout)
-and the prior probability of mutation (prior_p_mutation). RNAmut can be used to optimize these parameters using a Metropolis-Hastings algorithm.
-Additionally, RNAmut tries to derive the phylogenetic relation inbetween single cells to find the cell lineage trees and parameters, which best 
+and the prior probability of mutation (prior_p_mutation). RNAmut can be used to optimize these parameters using a Metropolis-Hastings algorithm and 
+to sample from the posterior probability distribution.
+Additionally, this program tries to derive the phylogenetic relation inbetween single cells to find the cell lineage trees and parameters, which best 
 explain the observed read counts. The tree consists of the possible mutation sites, with the cells attached to them.
 Cells attached to the root have no mutations in any of the mutation sites. A cell attached to another part of the tree has the mutation 
 it is attached to and all mutations of its ancestors. This approach is based on SCIPHI "https://www.nature.com/articles/s41467-018-07627-7".
 
-As optional outputs we have on the one hand the calculated probabilities of mutation, making use of the best parameters. 
+As optional outputs, we have on the one hand the calculated probabilities of mutation, making use of the best parameters. 
 On the other hand the mutations derived from the best cell lineage trees. In addition, a graphviz file to picture the tree and all samples 
-collected after the burn-in phase can be output as well. To visualize some of the results, it might be helpful to take a look at the 
+collected after the burn-in phase can be produced as well. To visualize some of the results, it might be helpful to take a look at the 
 following notebook "https://github.com/znorio/RNAmut/edit/master/Notebooks/"
 """
 
@@ -33,7 +34,7 @@ moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # probabilities of different
                                                     #     the parameters are updated, one minus this probability is the probability that the trees are updated
                                                     # 2.  prune&re-attach: prune a subtree and re-attach it to the main tree
                                                     # 3.  swap node labels: two nodes are randomly chosen and their labels exchanged
-                                                    # 4.  swap subtrees: swap subtrees only if nodes in different lineages else prune&re-attach
+                                                    # 4.  swap subtrees: swap subtrees only if nodes in different lineages, else prune&re-attach
                                                     # 2,3 and 4 are weights -> they don't have to sum up to 1
             
 oodp = [100, 1, 0.2, 0.1]                           # initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
@@ -82,7 +83,7 @@ output_gv = True                                    # if true outputs graphviz f
 output_samples = False                              # if true outputs all samples after burn-in of current log-score, current tree log-score,
                                                     # current parameters and curent parent vector as numpy array
 output_sampleParams = True                          # if true outputs all samples after burn-in of current parameters and current log-score as numpy array
-output_ProbabilityMatrix = True                     # if true outputs probability matrix of best parameters as csv file
+output_ProbabilityMatrix = True                     # if true outputs probability matrix using the best parameters as csv file
 
 path = ".Data/"                                     # specify the main path to the files
 alt_file = "alternative_reads.csv"                  # name of alternative read file
@@ -164,4 +165,3 @@ if output_samples == True:
 if output_sampleParams == True:
     sampleParams = np.array(sampleParams)
     np.save(outFile, sampleParams)
-    
