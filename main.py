@@ -82,25 +82,23 @@ gene_names = list(pd_ref.iloc[:,0])
 cell_names = list(pd_ref.columns[1:])
 
 # Replace NANs with 0
-ref = np.array(pd_ref.fillna(0)).tolist()
-alt = np.array(pd_alt.fillna(0)).tolist()
+ref = np.array(pd_ref.fillna(0))[:,1:].tolist()
+alt = np.array(pd_alt.fillna(0))[:,1:].tolist()
 
 # Determine number of cells and mutation sites
-rows_ref = len(ref)
-num_mut = rows_ref # number of mutations is equal to the number of rows, because the cellnames are removed
+num_mut = len(ref) # number of mutations is equal to the number of rows
 
-columns_ref = len(ref[1])
-num_cells = columns_ref - 1
+num_cells = len(ref[1]) # number of cells is equal to the number of columns
 
 print("Number of mutation sites:", num_mut, " Number of cells:", num_cells)
 
 rows_alt = len(alt)
 columns_alt = len(alt[1])
 
-if rows_ref != rows_alt:
+if num_mut != rows_alt:
     print("The number of mutation sites is not the same in files", ref_file, "and", alt_file)
 
-if columns_ref != columns_alt:
+if num_cells != columns_alt:
     print("The number of cells s is not the same in files", ref_file, "and", alt_file)
     
 
@@ -114,7 +112,7 @@ samples, sampleParams, optimal, bestParams = runMCMCoodp(reps, loops, oodp, prio
 
 # Uses the best parameters to calculate the probability of mutation using the RNA read counts
 if output_ProbabilityMatrix == True:           
-    pmat = calculate_pmat(bestParams[0], bestParams[1], bestParams[2], bestParams[3], frequency_of_nucleotide, sequencing_error_rate)
+    pmat = calculate_pmat(bestParams[0], bestParams[1], bestParams[2], bestParams[3], frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref)
     savetxt(outFile + "_pmat.csv", pmat, delimiter = ",")
 
     
@@ -138,7 +136,7 @@ if output_gv == True:
     for o, opt in enumerate(optimal):
         if o >= optTreeOutputNum:
             break
-        gv = graphviz(opt[1], opt[0], num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
+        gv = graphviz(opt[1], opt[0], num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate, gene_names)
         with open( outFile + "_" + str(o) + ".gv", "w") as text_file:
             text_file.write(gv)
 
