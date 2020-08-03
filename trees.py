@@ -2,7 +2,7 @@
 # The tree consists of the possible mutation sites. The cells are attached to the tree.
 # A cell attached to the root has no mutation in any of the mutation sites.
 # A cell attached to another part of the tree has the mutation it is attached to and all
-# mutations of the respective parents.
+# mutations of its ancestors.
 
 import numpy as np
 import random
