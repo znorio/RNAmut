@@ -98,7 +98,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
     
     for r in range(reps):       # starts over, but keeps sampling, bestScore, bestTreeLogScore
 
-        av_params_t = oodp
+        av_params_t = np.array(oodp)
         currTreeParentVec = getRandParentVec(parentVectorSize)     # start MCMC with random tree
         currTreeAncMatrix =  parentVector2ancMatrix(currTreeParentVec, parentVectorSize)
         currParams = oodp
@@ -171,7 +171,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                     
                 if (l > 0.9 * initialPeriod):
                     t += 1
-                    av_params_t += (currParams - av_params_t) / t
+                    av_params_t += (np.array(currParams) - av_params_t) / t
                     
                 if (l > initialPeriod):
                     cov_mat = (t - 1)/t * (cov_mat  +  1/t * np.dot(np.transpose([currParams - av_params_t]), [currParams - av_params_t]) * decVar) + eps * np.identity(4)
@@ -180,9 +180,9 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
             else:                 # if the move changes the tree not the parameter
                 totalMovesTrees += 1
                 propTreeParentVec = proposeNewTree(moveProbsParams, currTreeAncMatrix[:], currTreeParentVec[:], num_mut)
-                propTreeLogScore = log_scoretree(currpmat, propTreeParentVec, marginalization)
+                propTreeLogScore = log_scoretree(currpmat, propTreeParentVec, marginalization, num_mut, num_cells)
                 
-                if acceptance(currTreeLogScore, propTreeLogScore, gamma):                   # the proposed tree is accepted
+                if acceptance(currTreeLogScore, propTreeLogScore):                   # the proposed tree is accepted
                     moveAcceptedTrees += 1
                     currTreeAncMatrix = parentVector2ancMatrix(propTreeParentVec, parentVectorSize)
                     currTreeParentVec = propTreeParentVec                                
