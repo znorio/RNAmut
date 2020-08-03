@@ -35,41 +35,48 @@ moveProbsParams = [0.25, 0.4, 0.35, 0.05]           # probabilities of different
                                                     # 3.  swap node labels: two nodes are randomly chosen and their labels exchanged
                                                     # 4.  swap subtrees: swap subtrees only if nodes in different lineages else prune&re-attach
                                                     # 2,3 and 4 are weights -> they don't have to sum up to 1
-oodp = [100, 1, 0.2, 0.1]                           # initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
             
-# For the two overdispersion, dropout and mutation 
-# parameters, a prior beta distribution is specified.
-priorAlphaBetaoodp = [2, 10, 2, 2, 1.5, 3, 2, 18]   # alpha overdispersion_wt, beta overdispersion_wt, alpha overdispersion_mut, beta overdispersion_mut, 
-                                                    # alpha dropout, beta dropout, alpha prior_p_mutation, beta prior_p_mutation
-frequency_of_nucleotide = 0.5                       # expected allele frequency
-sequencing_error_rate = 0.01                        # if small, it has little effect on the mutation probability
+oodp = [100, 1, 0.2, 0.1]                           # initial values for overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
 
-# The covariance matrix is learned adaptively.
-# New parameters are drawn from a multivariate
-# normal distribution.
+priorAlphaBetaoodp = [2, 10, 2, 2, 1.5, 3, 2, 18]   # for the two overdispersion, dropout and mutation parameters, a prior beta distribution is specified:
+                                                    # alpha overdispersion_wt, beta overdispersion_wt, alpha overdispersion_mut, beta overdispersion_mut, 
+                                                    # alpha dropout, beta dropout, alpha prior_p_mutation, beta prior_p_mutation
+ 
 covDiagonal = [1, 0.001, 0.0002, 0.00001]           # initial covariance Matrix is all zeros expcept these values in the diagonal from upper left to lower right
+                                                    # the covariance matrix is learned adaptively and it's used for drawing from a multivariate normal distribution
+                                                          
 maxValues = [1000, 2, 1, 1]                         # the maximum values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
                                                     # values larger than (maximum_value - 0.00001) are not considered
-minValues = [0,0,0,0]                               # the minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation
+  
+minValues = [0,0,0,0]                               # the minimal values for the parameters overdispersion_wt, overdispersion_mut, dropout, prior_p_mutatio
                                                     # values smaller than (minimum_value + 0.00001) are not considered
+  
 outFile = "tree"                                    # the name of the output files
+frequency_of_nucleotide = 0.5                       # expected allele frequency
+sequencing_error_rate = 0.01                        # if small, it has little effect on the mutation probability
 reps = 1                                            # number of repetitions of the MCMC
 loops = 100000                                      # number of loops within a MCMC
-initialPeriod = 10000                               # number of iterations before the initial covariance matrix is adapted                               
+initialPeriod = 10000                               # number of iterations before the initial covariance matrix is adapted 
 sampleStep = 1                                      # stepsize between sampling of parameters and trees/ 1 -> sampled every round, 2 -> sampled every second round,...
 burnInPhase = 0.25                                  # burn-in loops / total number of loops
+
 decVar = 0.1                                        # the covariance matrix is multiplied with this factor, to increase or decrease it 0.1 -> 10 times smaller
                                                     # increases or decreases the acceptance rate
+  
 adaptAcceptanceRate = True                          # if true starts with given decVar, but adapts it every 1000 loops, if the acceptance rate lies outside 1/4 to 1/2
+
 factorParamsLogScore = 10                           # is multiplied with the parameter log score to increase or decrease its influence compared to the tree log score
                                                     # -> Helps to prevent empty tree solution (all cells attached to the root).
+  
 factor_owt = 2                                      # is additionally multiplied with the overdisperison_wt log-score, because this is the main parameter 
                                                     # responsible for the empty tree solution.
+  
 marginalization = True                              # if false the program maximizes the placement of the cells, if true the program tries to find the marginal 
                                                     # distribution of the parameters.
 
 optTreeOutputNum = 3                                # determines the maximal number of optimal trees for the output, if output_gv = True and / or output_mut_csv = True
                                                     # if = -1 -> no restrictions on the output size
+  
 output_mut_csv = True                               # if true outputs 1,0 mutation matrix of optimal trees / marginalization should be False
 output_gv = True                                    # if true outputs graphviz file of optimal trees / marginalization should be False
 output_samples = False                              # if true outputs all samples after burn-in of current log-score, current tree log-score,
