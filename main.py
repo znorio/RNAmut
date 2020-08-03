@@ -105,7 +105,7 @@ if num_cells != columns_alt:
 # Run Markov chain Monte Carlo / Metropolis Hastings algorithm
 samples, sampleParams, optimal, bestParams = runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
                                                          covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization, \
-                                                         frequency_of_nucleotide, sequencing_error_rate)
+                                                         frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref)
 
 
 # Create all desired output files
