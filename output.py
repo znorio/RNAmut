@@ -40,7 +40,7 @@ def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleot
             bf[z] = children[bf[w]][t]           # determine where the mutations are located in the tree to later be able to 
                                                  # add the log score from root to bottom of the tree
     
-    for i in range(m):
+    for i in range(num_cells):
         
         score = [0] * (num_mut + 1)
         
@@ -51,7 +51,7 @@ def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleot
                        
             node = bf[k]
             
-            # Step by step the mutation log score is added and because the mutation replaces a reference, 
+            # step by step the mutation log score is added and because the mutation replaces a reference, 
             # the reference log score is substracted.
             score[node] = score[parVec[node]]
             score[node] -= log_pmat_r[node,i] 
@@ -92,7 +92,7 @@ def oneZeroMut(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequ
   
 
 # Creates a graphviz file
-def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
+def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate, gene_names):
     """
     Args:
         params                  - [overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation] (list)
@@ -111,7 +111,7 @@ def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequen
     gv += "node [color=deeppink4, style=filled, fontcolor=white];\n"
 
     for i in range(num_mut):
-        # The parantheses around the gene names help displaying them if they contain special characters
+        # the parantheses around the gene names help displaying them if they contain special characters
         gv += ("\"" + gene_names[parVec[i]] + "\"" + " -> "  + "\"" + gene_names[i]  + "\"" + ";\n" ) 
 
     gv += "node [color=lightgrey, style=filled, fontcolor=black];\n"
