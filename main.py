@@ -1,5 +1,5 @@
 """
-Takes RNA reference and alternative nucleotide read counts as input.
+RNAmut takes RNA reference and alternative nucleotide read counts as input.
 The input format should be equivalent to the example data files reference_reads.csv and alternative_reads.csv (apart from the size).
 
 An algorithm (scores.py/calculate_pmat) transfers the read counts to probabilities of mutation. To model the nucleotide read counts 
@@ -7,14 +7,14 @@ in relation to the total coverage, the algorithm uses a beta-binomial distributi
 The algorithms parameters include two overdispersion terms (overdispersion_mut for the mutated and overdispersion_wt for the non-mutated case)
 describing the shape of the beta distributions (overdispersion = alpha + beta). Furthermore the parameters include an allelic dropout term (dropout)
 and the prior probability of mutation (prior_p_mutation). RNAmut can be used to optimize these parameters using a Metropolis-Hastings algorithm.
-Additionally RNAmut tries to derive the phylogenetic relation inbetween single cells to find the cell lineage trees and parameters, which best 
-explain the observed read counts. The tree consists of the possible mutation sites. The cells are attached to the tree.
+Additionally, RNAmut tries to derive the phylogenetic relation inbetween single cells to find the cell lineage trees and parameters, which best 
+explain the observed read counts. The tree consists of the possible mutation sites, with the cells attached to them.
 Cells attached to the root have no mutations in any of the mutation sites. A cell attached to another part of the tree has the mutation 
 it is attached to and all mutations of its ancestors. This approach is based on SCIPHI "https://www.nature.com/articles/s41467-018-07627-7".
 
 As optional outputs we have on the one hand the calculated probabilities of mutation, making use of the best parameters. 
-On the other hand the mutations derived from the best cell lineage trees. In addition a graphviz file to visualize the tree and all samples 
-collected after the burn-in phase can be output as well. To visualize what some of the results, it might be helpful to take a look at the 
+On the other hand the mutations derived from the best cell lineage trees. In addition, a graphviz file to picture the tree and all samples 
+collected after the burn-in phase can be output as well. To visualize some of the results, it might be helpful to take a look at the 
 following notebook "https://github.com/znorio/RNAmut/edit/master/Notebooks/"
 """
 
