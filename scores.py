@@ -5,7 +5,7 @@ import numpy as np
 
 
 # Convert read counts to mutation probabilities
-def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation, frequency_of_nucleotide, sequencing_error_rate):
+def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutation, frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref):
     """
     Args:
         overdispersion_wt       - overdispersion wildtype (non-mutated case) (float)
@@ -24,23 +24,23 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
     alpha_mut = overdispersion_mut * (frequency_of_nucleotide - 1/3 * sequencing_error_rate) 
     beta_mut = overdispersion_mut * (1 - (frequency_of_nucleotide - 1/3 * sequencing_error_rate))
 
-    pmat = np.zeros((rows_ref,columns_ref - 1))
+    pmat = np.zeros((num_mut, num_cells))
     
     # alpha_wt + beta_wt = overdispersion_wt
     # alpha_mut + beta_mut = overdispersion_mut
     gamma_const_nor = math.lgamma(overdispersion_wt) - math.lgamma(alpha_wt) - math.lgamma(beta_wt)
     gamma_const_mut = math.lgamma(overdispersion_mut) - math.lgamma(alpha_mut) - math.lgamma(beta_mut)
     
-    # sc.gammaln(c + 1) and - sc.gammaln(c - s + 1) and - sc.gammaln(s + 1) are the same for all terms. 
-    # -> They cancel out and it is not necessary to calculate them.
-    for i in range(rows_ref):
-        for j in range(1,columns_ref):    
+    # sc.gammaln(c + 1) and - sc.gammaln(c - s + 1) and - sc.gammaln(s + 1) are the same for all terms 
+    # -> they cancel out and it is not necessary to calculate them
+    for i in range(num_mut):
+        for j in range(num_cells):    
 
-            c = ref[i][j] + alt[i][j]  #total_coverage
-            s = alt[i][j]  #nucleotide_counts 
+            c = ref[i][j] + alt[i][j]  # total_coverage
+            s = alt[i][j]  # nucleotide_counts 
             
             if (c == 0):
-                pmat[i][j-1] = prior_p_mutation
+                pmat[i][j] = prior_p_mutation
                 continue
             
             gamma_core =  gamma_const_nor - math.lgamma(c + overdispersion_wt)
@@ -54,10 +54,10 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
                     + (1 - dropout) * math.e**(math.lgamma(s + alpha_mut) + math.lgamma(c - s + beta_mut) \
                     + gamma_const_mut - math.lgamma(c + overdispersion_mut))
 
-            pmat[i][j-1] = (p_mut * prior_p_mutation)/((p_mut * prior_p_mutation) + (p_nor * (1 - prior_p_mutation)))
+            pmat[i][j] = (p_mut * prior_p_mutation)/((p_mut * prior_p_mutation) + (p_nor * (1 - prior_p_mutation)))
             
-    pmat[pmat > 0.9999] = 0.9999
-    pmat[pmat < 0.0001] = 0.0001
+    pmat[pmat > 0.9999] = 0.9999 # highest allowed probability of mutation
+    pmat[pmat < 0.0001] = 0.0001 # lowest
     return pmat
 
 
