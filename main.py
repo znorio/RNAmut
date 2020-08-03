@@ -7,10 +7,10 @@ in relation to the total coverage, the algorithm uses a beta-binomial distributi
 The algorithms parameters include two overdispersion terms (overdispersion_mut for the mutated and overdispersion_wt for the non-mutated case)
 describing the shape of the beta distributions (overdispersion = alpha + beta). Furthermore the parameters include an allelic dropout term (dropout)
 and the prior probability of mutation (prior_p_mutation). RNAmut can be used to optimize these parameters using a Metropolis-Hastings algorithm and 
-to sample from the posterior probability distribution.
+to draw samples from the posterior probability distributions.
 Additionally, this program tries to derive the phylogenetic relation inbetween single cells to find the cell lineage trees and parameters, which best 
-explain the observed read counts. The tree consists of the possible mutation sites, with the cells attached to them.
-Cells attached to the root have no mutations in any of the mutation sites. A cell attached to another part of the tree has the mutation 
+explain the observed read counts. The tree nodes consist of the possible mutation sites, with the cells attached to them.
+Cells attached to the tree-root have no mutations. A cell attached to another part of the tree has the mutation 
 it is attached to and all mutations of its ancestors. This approach is based on SCIPHI "https://www.nature.com/articles/s41467-018-07627-7".
 
 As optional outputs, we have on the one hand the calculated probabilities of mutation, making use of the best parameters. 
