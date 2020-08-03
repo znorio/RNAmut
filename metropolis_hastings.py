@@ -1,3 +1,5 @@
+# Functions for running the parameter and tree optimization using a metropolis-hastings algorithm
+
 import numpy as np
 import math
 import random
@@ -71,6 +73,10 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         marginalization         - false -> optimizes the tree, the placement of cells, true -> marginal distribution of the parameters (bool)
         frequency_of_nucleotide - expected allele frequency (float)
         sequencing_error_rate   - sequencing error rate (float)
+        num_mut                 - number of mutation sites (int)
+        num_cells               - number of cells (int)
+        alt                     - alternative read counts (list)
+        ref                     - wildtype/reference read counts (list)
         
     Returns:
         sample                  - all samples after burn-in of current tree log-score, current params and curent parent vector (list)
@@ -172,7 +178,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         
             else:                 # if the move changes the tree not the parameter
                 totalMovesTrees += 1
-                propTreeParentVec = proposeNewTree(moveProbsParams, currTreeAncMatrix[:], currTreeParentVec[:])
+                propTreeParentVec = proposeNewTree(moveProbsParams, currTreeAncMatrix[:], currTreeParentVec[:], num_mut)
                 propTreeLogScore = log_scoretree(currpmat, propTreeParentVec, marginalization)
                 
                 if acceptance(currTreeLogScore, propTreeLogScore, gamma):                   # the proposed tree is accepted
