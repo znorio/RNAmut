@@ -9,11 +9,15 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
     """
     Args:
         overdispersion_wt       - overdispersion wildtype (non-mutated case) (float)
-        overdispersion_mut      - overdispersion mutated case (float)
+        overdispersion_mut      - overdispersion mutation (mutated case) (float)
         dropout                 - dropout rate (float)
         prior_p_mutation        - prior probability of a mutation occurring (float)
         frequency_of_nucleotide - expected allele frequency (float)
         sequencing_error_rate   - sequencing error rate (float)
+        num_mut                 - number of mutation sites (int)
+        num_cells               - number of cells (int)
+        alt                     - alternative read counts (list)
+        ref                     - wildtype/reference read counts (list)
         
     Returns:
         pmat                    - mutation probabilities (numpy array)
@@ -37,7 +41,7 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
         for j in range(num_cells):    
 
             c = ref[i][j] + alt[i][j]  # total_coverage
-            s = alt[i][j]  # nucleotide_counts 
+            s = alt[i][j]  # alternative nucleotide_counts (mutated)
             
             if (c == 0):
                 pmat[i][j] = prior_p_mutation
@@ -45,8 +49,7 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
             
             gamma_core =  gamma_const_nor - math.lgamma(c + overdispersion_wt)
             
-            p_nor = math.lgamma(s + alpha_wt) + math.lgamma(c - s + beta_wt) + gamma_core
-            
+            p_nor = math.lgamma(s + alpha_wt) + math.lgamma(c - s + beta_wt) + gamma_core  
             p_nor = (math.e**(p_nor))
             
             p_mut = (dropout/2) * (p_nor) \
@@ -61,8 +64,8 @@ def calculate_pmat(overdispersion_wt, overdispersion_mut, dropout, prior_p_mutat
     return pmat
 
 
-# Logarithm of probability density function (pdf) of the beta distribution
-def log_pdf(a,b,x):
+# Logarithm of probability density function (pdf) of the beta distribution at point x
+def log_pdf(a, b, x):
     """
     Args:
         a - alpha (float)
@@ -70,7 +73,7 @@ def log_pdf(a,b,x):
         x - range: (0,1) / probability density is determined at point x (float)
         
     Returns:
-        Logarithm of pdf (float)
+        Logarithm of probability density function (float)
     """
     return math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + (a - 1) * math.log(x) + (b - 1) * math.log(1 - x)
 
@@ -79,12 +82,14 @@ def log_pdf(a,b,x):
 # Uses the logarithmic scoring rule to determine the difference between the calculated probabilities of mutation 
 # and the one zero mutation probabilities derived from the mutation tree
 # Marginalization of the attachment points is possible (to get posterior distributions of the learnable parameters)
-def log_scoretree(pmat, parVec, marginalization):
+def log_scoretree(pmat, parVec, marginalization, num_mut, num_cells):
      """
     Args:
         pmat            - calculated probabilities of mutation (numpy array)
         parVec          - parent vector of tree (list)
         marginalization - if true the attachment points are marginalized (bool)
+        num_mut         - number of mutation sites (int)
+        num_cells       - number of cells (int)
         
     Returns:
         log_score       - logarithmic tree score (float)
@@ -98,6 +103,8 @@ def log_scoretree(pmat, parVec, marginalization):
     for q in range(num_mut):
         children[parVec[q]].append(q) 
 
+    # determine where the mutation_sites are located in the tree 
+    # to later be able to add the log score from root to bottom of the tree
     bf = [0] * (num_mut + 1)
     bf[0] = num_mut
     z = 0
@@ -105,9 +112,9 @@ def log_scoretree(pmat, parVec, marginalization):
     for w in range(num_mut + 1):
         for t in range(len(children[bf[w]])):
             z += 1
-            bf[z] = children[bf[w]][t]           # determine where the mutation_sites are located in the tree 
-                                                 # to later be able to add the log score from root to bottom of the tree
-    
+            bf[z] = children[bf[w]][t]           
+                                                 
+    # add to log-score
     for i in range(num_cells):
         
         score = [0] * (num_mut + 1)
@@ -149,9 +156,9 @@ def log_scoreparams(params, maxValues, priorAlphaBetaoodp, factor_owt, factorPar
         Logarithmic parameters score (float)
     """
     log_score = 0            
-    log_score += log_pdf(priorAlphaBetaoodp[0], priorAlphaBetaoodp[1], params[0] / maxValues[0]) * factor_owt
-    log_score += log_pdf(priorAlphaBetaoodp[2], priorAlphaBetaoodp[3], params[1] / maxValues[1])
-    log_score += log_pdf(priorAlphaBetaoodp[4], priorAlphaBetaoodp[5], params[2] / maxValues[2])
-    log_score += log_pdf(priorAlphaBetaoodp[6], priorAlphaBetaoodp[7], params[3] / maxValues[3])
+    log_score += log_pdf(priorAlphaBetaoodp[0], priorAlphaBetaoodp[1], params[0] / maxValues[0]) * factor_owt   # overdispersion_wt
+    log_score += log_pdf(priorAlphaBetaoodp[2], priorAlphaBetaoodp[3], params[1] / maxValues[1])                # overdispersion_mut
+    log_score += log_pdf(priorAlphaBetaoodp[4], priorAlphaBetaoodp[5], params[2] / maxValues[2])                # dropout
+    log_score += log_pdf(priorAlphaBetaoodp[6], priorAlphaBetaoodp[7], params[3] / maxValues[3])                # prior_p_mutation
     
     return log_score * factorParamsLogScore
