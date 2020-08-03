@@ -215,7 +215,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                 sampleParams.append([currParams, currScore])
                 
             if(l >= burnIn and l % sampleStep == 0):
-                sample.append([currTreeLogScore, currParams, currTreeParentVec])
+                sample.append([currScore, currTreeLogScore, currParams, currTreeParentVec])
             
             if(currScore > bestScore + eps):
                 optStatesAfterBurnIn = 1          
