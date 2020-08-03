@@ -17,7 +17,7 @@ def acceptance(x_logs, x_new_logs):
         x_new_logs  - new log score (float)
         
     Returns:
-        accepted or not (bool)
+        Accepted or not (bool)
     """
     if x_new_logs > x_logs:
         return True
@@ -41,6 +41,7 @@ def sample_multivariate_normal(x, cov):
     x_new = [0,0,0,0]
     chol = np.linalg.cholesky(cov)
     un = [gauss(0,1),gauss(0,1),gauss(0,1),gauss(0,1)]
+    
     for i in range(n):
         for j in range(n):
             x_new[i] += float(chol[i][j]) * un[j]
@@ -48,8 +49,8 @@ def sample_multivariate_normal(x, cov):
     return x_new
   
     
-# Runs the Markov chain Monte Carlo (MCMC)/ Metropolis Hastings algorithm for learning the tree and parameters.
-# It either samples from the posterior paramter distributions / optimizes the parameters, muatation tree and the attachment of cells
+# Runs the Markov chain Monte Carlo (MCMC)/ Metropolis Hastings algorithm.
+# It samples from the posterior paramter distributions / optimizes the parameters, muatation tree and the attachment of cells
 def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
                 covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization, \
                 frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref):
@@ -126,7 +127,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         for l in range(loops):
             
             if(l % 10000 == 0):
-                print("At mcmc repetition " , r + 1 , "/" , rep , ", step " , l , " best tree score: " , bestTreeLogScore \
+                print("At mcmc repetition " , r + 1 , "/" , reps , ", step " , l , " best tree score: " , bestTreeLogScore \
                 , " and best overdispersion_wt: " , bestParams[0] , ", best overdispersion_mut: " , bestParams[1] , ", best dropout: " \
                 , bestParams[2] , ", best prior_p_mutation: " , bestParams[3] , " and best overall score: " , bestScore , "\n", sep = "")
 
@@ -156,11 +157,11 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                     continue 
                 
                 propParamsLogScore = log_scoreparams(propParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
-                pmat = calculate_pmat(propParams[0], propParams[1], propParams[2], propParams[3], frequency_of_nucleotide, sequencing_error_rate)
-                propTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
+                pmat = calculate_pmat(propParams[0], propParams[1], propParams[2], propParams[3], frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref)
+                propTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization, num_mut, num_cells)
                 propScore = propTreeLogScore + propParamsLogScore
 
-                if acceptance(currScore, propScore, gamma):  # the proposed move is accepted
+                if acceptance(currScore, propScore):  # the proposed move is accepted
                     moveAcceptedParams += 1
                     currTreeLogScore  = propTreeLogScore
                     currParams = propParams
@@ -222,7 +223,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
                 bestScore = currScore
                 bestParams = currParams
 
-    noStepsAfterBurnin = rep * (loops - burnIn)
+    noStepsAfterBurnin = reps * (loops - burnIn)
 
     print( "best log score for tree: " , bestTreeLogScore)
     print( "optimal steps after burn-in: " , optStatesAfterBurnIn)
