@@ -5,7 +5,7 @@ from .scores import calculate_pmat
 from .trees import parentVector2ancMatrix
 
 # Determines the optimal attachment points of the cells to the mutation tree
-def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate):
+def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate, alt, ref):
     """
     Args:
         parVec                  - parent vector (list)
@@ -18,7 +18,7 @@ def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleot
     Returns:
         attachmentPoints        - optimal attachment points (list)
     """    
-    pmat = calculate_pmat(params[0], params[1], params[2], params[3], frequency_of_nucleotide, sequencing_error_rate )
+    pmat = calculate_pmat(params[0], params[1], params[2], params[3], frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref)
     
     log_pmat_m = np.log(pmat)
     log_pmat_r = np.log(1 - pmat)
@@ -79,7 +79,7 @@ def oneZeroMut(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequ
     """    
     ancMatrix = parentVector2ancMatrix(parVec, num_mut)
     
-    attachmentPoints = getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
+    attachmentPoints = getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate, alt, ref)
 
     mat = np.zeros((num_mut, num_cells))
 
@@ -118,7 +118,7 @@ def graphviz(params, parVec, num_mut, num_cells, frequency_of_nucleotide, sequen
 
     gv += "node [color=lightgrey, style=filled, fontcolor=black];\n"
                             
-    attachmentPoints = getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate)
+    attachmentPoints = getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleotide, sequencing_error_rate, alt, ref)
     
     for y, a in enumerate(attachmentPoints):
         gv += "\"" + gene_names[a] + "\"" + " -> s"  + str(y + 1) + ";\n"
