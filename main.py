@@ -16,7 +16,7 @@ it is attached to and all mutations of its ancestors. This approach is based on 
 As optional outputs, we have on the one hand the calculated probabilities of mutation, making use of the best parameters. 
 On the other hand the mutations derived from the best cell lineage trees. In addition, a graphviz file to picture the tree and all samples 
 collected after the burn-in phase can be produced as well. To visualize some of the results, it might be helpful to take a look at the 
-following notebook "https://github.com/znorio/RNAmut/edit/master/Notebooks/"
+following notebook "https://github.com/znorio/RNAmut/blob/master/Notebook_RNAmut.ipynb"
 """
 
 import numpy as np
