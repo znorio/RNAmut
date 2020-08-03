@@ -50,7 +50,7 @@ def sample_multivariate_normal(x, cov):
 # It either samples from the posterior paramter distributions / optimizes the parameters, muatation tree and the attachment of cells
 def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
                 covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization, \
-                frequency_of_nucleotide, sequencing_error_rate):
+                frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref):
     """
     Args:
         reps                    - number of repetitions of the MCMC (int)
@@ -95,9 +95,9 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         currTreeParentVec = getRandParentVec(parentVectorSize)     # start MCMC with random tree
         currTreeAncMatrix =  parentVector2ancMatrix(currTreeParentVec, parentVectorSize)
         currParams = oodp
-        pmat = calculate_pmat(currParams[0], currParams[1], currParams[2], currParams[3], frequency_of_nucleotide, sequencing_error_rate)
+        pmat = calculate_pmat(currParams[0], currParams[1], currParams[2], currParams[3], frequency_of_nucleotide, sequencing_error_rate, num_mut, num_cells, alt, ref)
         currpmat = pmat
-        currTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization)
+        currTreeLogScore = log_scoretree(pmat, currTreeParentVec, marginalization, num_mut, num_cells)
         currParamsLogScore = log_scoreparams(currParams, maxValues, priorAlphaBetaoodp, factor_owt, factorParamsLogScore)
         currScore = currTreeLogScore + currParamsLogScore
         
