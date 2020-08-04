@@ -14,6 +14,8 @@ def getAttachmentPoints(parVec, params, num_mut, num_cells, frequency_of_nucleot
         num_cells               - number of cells (int)
         frequency_of_nucleotide - expected allele frequency (float)
         sequencing_error_rate   - sequencing error rate (float)
+        alt                     - alternative read counts (list)
+        ref                     - wildtype/reference read counts (list)
         
     Returns:
         attachmentPoints        - optimal attachment points (list)
