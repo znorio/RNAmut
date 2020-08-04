@@ -49,7 +49,7 @@ def sample_multivariate_normal(x, cov):
     return x_new
   
     
-# Runs the Markov chain Monte Carlo (MCMC)/ Metropolis Hastings algorithm.
+# Runs the Markov chain Monte Carlo (MCMC)/ Metropolis-Hastings algorithm.
 # It samples from the posterior paramter distributions / optimizes the parameters, muatation tree and the attachment of cells
 def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleStep, initialPeriod, adaptAcceptanceRate, \
                 covDiagonal, maxValues, minValues, burnInPhase, decVar, factor_owt, factorParamsLogScore, marginalization, \
@@ -80,7 +80,7 @@ def runMCMCoodp(reps, loops, oodp, priorAlphaBetaoodp, moveProbsParams, sampleSt
         ref                     - wildtype/reference read counts (list)
         
     Returns:
-        sample                  - all samples after burn-in of current tree log-score, current params and curent parent vector (list)
+        sample                  - all samples after burn-in of current log-score, current tree log-score, current params and curent parent vector (list)
         sampleParams            - all samples after burn-in of current parameters and current log-score (list)
         optimalTreelist         - all optimal trees that are not equivalent and current parameters (list)
         bestParams              - optimal parameters (list)
